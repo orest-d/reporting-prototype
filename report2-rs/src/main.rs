@@ -66,6 +66,19 @@ impl ReportNode {
             }
         }
     }
+    fn with_node<'a>(&'a mut self, node: ReportNode) -> &mut Self {
+        match self {
+            ReportNode::Section(ref mut section) => {
+                section.children.push(node);
+                self
+            }
+            ReportNode::Text(ref old_text) => {
+                let old_text = String::from(old_text);
+                *self = ReportNode::new("Document");
+                self.with_text(&old_text).with_node(node)
+            }
+        }
+    }
 }
 
 impl Renderable<Html> for ReportNode {
@@ -165,7 +178,9 @@ impl ToHtml for Section {
 */
 fn main() {
     let mut report = ReportNode::new("Document");
-    let report = report.with_text("Hello").with_section("Subsection");
+    let report = report.with_text("Hello").with_section("Subsection").with_node(
+        ReportNode::new("SubDocument")
+    );
     let serialized = serde_json::to_string(&report).unwrap();
     println!("Serialized:\n{}",serialized);
     println!("Rendered:{}",report.render(&mut Html(1)))
