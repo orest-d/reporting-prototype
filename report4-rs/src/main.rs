@@ -103,7 +103,6 @@ impl<T> Node<T> where T:Default{
             }
         )
     }
-
 }
 /*
 pub trait NodeValue<T,V> where T:Default{
